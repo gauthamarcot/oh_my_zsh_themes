@@ -1,5 +1,3 @@
-# ~/.oh-my-zsh/themes/dev_amazing_theme.zsh-theme
-
 # Colors
 local user_color="%F{green}"
 local dir_color="%F{blue}"
@@ -131,6 +129,7 @@ function startup_animation() {
   sleep 0.1
   
 }
+
 # Matrix-style startup animation
 function matrix_animation() {
   local i j lines cols chars
@@ -156,13 +155,45 @@ function matrix_animation() {
   clear
 }
 
-# Build the prompt
-PROMPT='$(last_command_status)${user_color}%n@%m${reset_color} ${dir_color}%~${reset_color} $(in_git_repo && echo "${git_color}$(git_branch)$(git_detached_head)$(git_ahead_behind)$(git_dirty)$(git_stash)$(git_conflicts)${reset_color}") ${time_color}%*${reset_color} \
-${cpu_color}CPU: $(cpu_usage)${reset_color} ${ram_color}RAM: $(ram_usage)${reset_color} ${cpu_color}Disk: $(disk_usage)${reset_color} \
+
+function os_symbol() {
+  local distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release | tr -d '"')
+  
+  case "$distro" in
+    Arch*|arch*)
+      echo "🏴‍☠️ Arch"
+      ;;
+    Kali*|kali*)
+      echo "🐉 Kali"
+      ;;
+    Ubuntu*|ubuntu*)
+      echo "🟠 Ubuntu"
+      ;;
+    Fedora*|fedora*)
+      echo "🎩 Fedora"
+      ;;
+    Debian*|debian*)
+      echo "🔴 Debian"
+      ;;
+    Manjaro*|manjaro*)
+      echo "🌲 Manjaro"
+      ;;
+    *)
+      echo "💻 $distro"
+      ;;
+  esac
+}
+
+# Build the prompt with a line separator
+PROMPT='
+$(os_symbol) | ${user_color}%n@%m${reset_color} ${dir_color}%~${reset_color} $(in_git_repo && echo "${git_color}$(git_branch)$(git_detached_head)$(git_ahead_behind)$(git_dirty)$(git_stash)$(git_conflicts)${reset_color}")
+${cpu_color}CPU: $(cpu_usage)${reset_color} ${ram_color}RAM: $(ram_usage)${reset_color} ${cpu_color}Disk: $(disk_usage)${reset_color}
+${time_color}%*${reset_color} ${battery_color}Battery: $(battery_status)${reset_color}
+────────────────────────────────────────────────────────────────────────────────────────
 $ '
 
 # Right prompt (for additional info like battery)
-RPROMPT='${battery_color}Battery: $(battery_status)${reset_color}'
+RPROMPT=''
 
 # Call the startup animation
 matrix_animation
