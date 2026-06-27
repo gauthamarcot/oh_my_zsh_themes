@@ -1,10 +1,10 @@
 
 setopt PROMPT_SUBST
 local OS_TYPE="$(uname -s)" 
-local m_bright="%F{046}"  # Bright Phosphor Green
-local m_dim="%F{028}"     # Dim/Dark Green
-local m_alert="%F{196}"   # Operator Alert Red
-local m_grey="%F{240}"    # Terminal Grey
+local m_bright="%F{046}"  
+local m_dim="%F{028}"     
+local m_alert="%F{196}"   
+local m_grey="%F{240}"    
 local reset="%f"
 
 local SSH_DIR_FILE="$HOME/.matrix_ssh_dir"
@@ -276,7 +276,6 @@ EOF
         if [[ -f "$VENV_PATH/bin/activate" ]]; then
           source "$VENV_PATH/bin/activate"
           
-          # FORCE the script to use the venv's certifi path, covering all HTTP libraries
           local CERT_PATH=$("$VENV_PATH/bin/python" -m certifi)
           export SSL_CERT_FILE="$CERT_PATH"
           export REQUESTS_CA_BUNDLE="$CERT_PATH"
