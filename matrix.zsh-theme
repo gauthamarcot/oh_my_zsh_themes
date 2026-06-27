@@ -1,21 +1,12 @@
-# =============================================================================
-# PREREQUISITES & OS DETECTION
-# =============================================================================
+
 setopt PROMPT_SUBST
 local OS_TYPE="$(uname -s)" 
-
-# =============================================================================
-# MATRIX THEME COLORS
-# =============================================================================
 local m_bright="%F{046}"  # Bright Phosphor Green
 local m_dim="%F{028}"     # Dim/Dark Green
 local m_alert="%F{196}"   # Operator Alert Red
 local m_grey="%F{240}"    # Terminal Grey
 local reset="%f"
 
-# =============================================================================
-# MATRIX SSH DIRECTORY & ALIAS GENERATOR
-# =============================================================================
 local SSH_DIR_FILE="$HOME/.matrix_ssh_dir"
 [[ -f "$SSH_DIR_FILE" ]] && source "$SSH_DIR_FILE"
 
@@ -23,7 +14,6 @@ function ssh() {
   local target=""
   local args=("$@")
   
-  # Parse arguments to find the user@ip or just the IP/hostname
   for arg in "${args[@]}"; do
     if [[ "$arg" =~ ^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+$ ]] || [[ "$arg" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
       target="$arg"
@@ -31,7 +21,6 @@ function ssh() {
     fi
   done
 
-  # If a target is detected, check if we've already saved this exact command
   if [[ -n "$target" ]]; then
     if [[ ! -f "$SSH_DIR_FILE" ]] || ! grep -Fq "ssh $*" "$SSH_DIR_FILE"; then
       echo -n -e "\033[1;33m[ SYSTEM ] Unregistered target detected: $target\033[0m\n"
@@ -46,10 +35,8 @@ function ssh() {
         read alias_name
         
         if [[ -n "$alias_name" ]]; then
-          # Save the alias using the exact arguments provided (including -i pem files)
           echo "alias $alias_name=\"command ssh $*\"" >> "$SSH_DIR_FILE"
           
-          # Load it into the current session immediately
           alias $alias_name="command ssh $*"
           
           echo -e "\033[1;32m[ OK ] Node saved. In the future, simply type: $alias_name\033[0m"
@@ -59,7 +46,6 @@ function ssh() {
     fi
   fi
 
-  # Route the connection through the actual SSH binary
   command ssh "$@"
 }
 
@@ -69,9 +55,6 @@ function ssh_indicator() {
   fi
 }
 
-# =============================================================================
-# THE ANIMATED WHITE RABBIT 
-# =============================================================================
 function render_buddy() {
   local exit_code=$1
   local c_pet="%F{255}"   
@@ -121,19 +104,16 @@ function render_buddy() {
   fi
 }
 
-# =============================================================================
-# TRUE FRAME-BY-FRAME ANIMATION ENGINE (PIXEL SPRITE)
-# =============================================================================
 function animated_rabbit_run() {
   tput civis 
   clear
   local cols=$(tput cols)
   local row=$(( $(tput lines) / 2 - 3 )) 
   
-  local w="\033[38;5;15m"  # White
-  local p="\033[38;5;211m" # Pink
-  local r="\033[0m"        # Reset
-  local c="\033[K"         # Clear to end of line (prevents trailing artifacts)
+  local w="\033[38;5;15m"
+  local p="\033[38;5;211m"
+  local r="\033[0m"
+  local c="\033[K"
 
   for ((i=0; i<cols-15; i+=4)); do
     tput cup $row 0
@@ -157,9 +137,7 @@ function animated_rabbit_run() {
   done
 }
 
-# =============================================================================
-# INTERACTIVE COMMANDS
-# =============================================================================
+
 function buddy() {
   case "$1" in
     pet)  export BUDDY_MOOD="loved"; true ;;
@@ -169,7 +147,6 @@ function buddy() {
       clear
       echo -e "\033[1;32m[ MATRIX SSH DIRECTORY ]\033[0m\n"
       if [[ -s "$HOME/.matrix_ssh_dir" ]]; then
-        # Format the hidden alias file into a clean, readable table
         cat "$HOME/.matrix_ssh_dir" | sed "s/alias //g" | sed 's/="command / \t -> /g' | sed 's/"//g' | awk -F'\t' '{printf "\033[1;37m%-15s\033[0m %s\n", $1, $2}'
       else
         echo -e "\033[1;31mNo nodes registered. Use 'ssh user@ip' to link a node.\033[0m"
@@ -335,9 +312,7 @@ EOF
   esac
 }
 
-# =============================================================================
-# SYSTEM & GIT METRICS (Zero-Lag Engine)
-# =============================================================================
+
 function git_branch() { git rev-parse --abbrev-ref HEAD 2> /dev/null }
 function git_dirty() { [[ -n $(git status --porcelain 2> /dev/null) ]] && echo "${m_alert}*${reset}" }
 function git_ahead_behind() {
@@ -380,9 +355,7 @@ function ram_usage() {
   fi
 }
 
-# =============================================================================
-# CINEMATIC BOOT SEQUENCE (Decryption + Multi-Lingual Rain)
-# =============================================================================
+
 function matrix_boot_sequence() {
   if [[ "$SHLVL" -eq 1 && -z "$TMUX" ]]; then
     tput civis 
@@ -452,9 +425,6 @@ function matrix_boot_sequence() {
   fi
 }
 
-# =============================================================================
-# PROMPT ASSEMBLY
-# =============================================================================
 PROMPT='
 $(render_buddy $?)
 ${m_dim}┌──[ $(ssh_indicator)${m_bright}$(os_icon) %~ ${m_dim}]──$(build_git_prompt)
@@ -462,5 +432,5 @@ ${m_dim}└─ ${m_bright}%n@%m ${m_grey}>${reset} '
 
 RPROMPT='${m_dim}[ ${m_bright}$(cpu_usage) ${m_dim}| ${m_bright}$(ram_usage) ${m_dim}]${reset}'
 
-# Execute Construct
+
 matrix_boot_sequence
